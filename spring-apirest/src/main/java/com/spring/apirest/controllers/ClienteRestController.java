@@ -1,11 +1,15 @@
 package com.spring.apirest.controllers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +46,26 @@ public class ClienteRestController {
 		return clienteService.findById(id);
 	}
 
+	@GetMapping("/clientesV2/{id}")
+	public ResponseEntity<?> showV2(@PathVariable Long id){
+		Cliente cliente = null;
+		Map<String,Object> response = new HashMap<>();
+		
+		try {
+			cliente = clienteService.findById(id);
+		} catch (DataAccessException e) {
+			response.put("mensaje","Error al realizar consulta en base de datos");
+			response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
+		}
+		
+		if(cliente == null) {
+			response.put("mensaje", "El cliente ID: ".concat(id.toString().concat("no existe en la base de datos")));
+			return new ResponseEntity<Map<String,Object>>(response,HttpStatus.NOT_FOUND);
+		}
+		
+		return new ResponseEntity<Cliente>(cliente,HttpStatus.OK);
+	}
 	
 	@PostMapping("/clientes")
 	@ResponseStatus(HttpStatus.CREATED)
