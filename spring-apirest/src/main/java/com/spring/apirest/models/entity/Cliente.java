@@ -3,34 +3,54 @@ package com.spring.apirest.models.entity;
 import java.io.Serializable;
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrePersist;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.validation.constraints.NotNull;
 
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.lang.NonNull;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
-@Table(name = "cliente")
+@Table(name = "clientes",schema = "db_spring_api")
 public class Cliente implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name="id_cliente")
 	private long id;
+	@Column(nullable = false)
 	private String nombre;
 	private String apellidos;
+	@Column(nullable = false,unique = true)
 	private String email;
+	
+	@Column(nullable = false,unique=true)
 	private int telefono;
 	
 	@Column(name="created_at")
 	@Temporal(TemporalType.DATE)
-	@CreatedDate
 	private Date createdAt;
+	
+	private String imagen;
+	
+	@NotNull(message="No puede estar vacio")
+	@ManyToOne(fetch = FetchType.LAZY,cascade=CascadeType.ALL)
+	@JoinColumn(name = "id_region")
+	@JsonIgnoreProperties({"hibernateLazyInitializer" , "handler"})
+	private Region region;
 	
 	@PrePersist
 	public void prePersist() {
@@ -74,6 +94,23 @@ public class Cliente implements Serializable {
 		this.createdAt = createdAt;
 	}
 	
+	public String getImagen() {
+		return imagen;
+	}
+
+	public void setImagen(String imagen) {
+		this.imagen = imagen;
+	}
+
+	public Region getRegion() {
+		return region;
+	}
+
+	public void setRegion(Region region) {
+		this.region = region;
+	}
+
+
 	/**
 	 * 
 	 */
